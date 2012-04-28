@@ -19,6 +19,10 @@ TweetList = CUORE.Class(CUORE.Component, {
 
     item: function(index) {
         return this.list[index];
+    },
+
+    tweets: function(){
+        return this.list;
     }
 });
 

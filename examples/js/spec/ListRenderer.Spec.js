@@ -1,10 +1,10 @@
 describe('ListRenderer', function() {
-       
+
     afterEach(function(){
         var container = document.getElementById('xhtmlToTest');
         container.innerHTML = '';
     });
-   
+
     beforeEach(function() {
 
 	this.addMatchers({
@@ -12,11 +12,11 @@ describe('ListRenderer', function() {
 		var figures = this.actual.getElementsByTagName(HTMLElementType);
 		return (figures.length > 0);
 	    },
-	    
+
 	    toContainClass: function(classname) {
 		return CUORE.Dom.hasClass(this.actual,classname);
 	    },
-	    
+
 	    toContainAsFirstElement: function(HTMLElementType) {
 		var tagName=this.actual.childNodes[0].tagName;
 		var hasElement =(tagName.toLowerCase() === HTMLElementType.toLowerCase())
@@ -45,43 +45,21 @@ describe('ListRenderer', function() {
         expect(DOMElement).toContainAsFirstElement('ul');
         var innerElement = DOMElement.childNodes[0];
     });
-    
+
     it("renderizes an li by tweet", function () {
         var container = createTestContainer();
-	var aComponent = getDummyComponent();
-	
-	var aRenderer = new ListRenderer();
-	aRenderer.setContainer(container.id);
+        var aComponent = getDummyComponent();
 
-	aRenderer.render(aComponent);
-	
-        var DOMElement = document.getElementById(container.id);
-	var innerElement = DOMElement.childNodes[0];
-        expect(innerElement.childNodes.length).toEqual(3);
-	expect(innerElement.getElementsByTagName('li').length).toEqual(3);
-	expect(innerElement.getElementsByTagName('img').length).toEqual(3);
-	expect(innerElement.getElementsByTagName('h4').length).toEqual(3);
-        expect(innerElement.getElementsByTagName('p').length).toEqual(3);
-    });
+        var aRenderer = new ListRenderer();
+        aRenderer.setContainer(container.id);
 
-    it("renderizes every liwith right content", function () {
-        var container = createTestContainer();
-	var aComponent = getDummyComponent();
-	
-	var aRenderer = new ListRenderer();
-	aRenderer.setContainer(container.id);
+        aRenderer.render(aComponent);
 
-	aRenderer.render(aComponent);
-	
-        var DOMElement = document.getElementById(container.id);
-	var innerElement = DOMElement.childNodes[0].childNodes[0];
-        var image=innerElement.getElementsByTagName('img')[0];
-        var title=innerElement.getElementsByTagName('h4')[0];
-        var content=innerElement.getElementsByTagName('p')[0];
-	
-        expect(image.src).toMatch('aPhoto');
-	expect(title.innerHTML).toEqual('aUser');
-        expect(content.innerHTML).toEqual('someContent');
+        var expectedTemplate = '{{#tweets}}<li><h4>{{user}}</h4><img src="{{photo}}"><p>{{content}}</p></li>{{/tweets}}';
+        var expectedHTML = Mustache.render(expectedTemplate, {tweets: aComponent.tweets()});
+        var DOMElement = document.getElementById(container.id)
+
+        expect(DOMElement.firstChild.innerHTML).toEqual(expectedHTML);
     });
 
     var createTestContainer = function() {
@@ -108,6 +86,8 @@ describe('ListRenderer', function() {
             'photo': 'aPhoto',
             'content': 'someContent'
         };
+
+       aComponent.tweets=jasmine.createSpy().andReturn([anItem,anItem,anItem]);
 
        aComponent.item =jasmine.createSpy().andReturn(anItem);
        aComponent.size = jasmine.createSpy().andReturn(3);
